@@ -1,0 +1,52 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<div class="text-center bg-light py-3 text-white shadow-sm border">
+    <h1 class="fw-bold text-dark">Departments</h1>
+    <a id="LoadDepartment" class="btn btn-info">
+        <i class="fa-solid fa-refresh"></i>
+        Load Department
+    </a>
+    <a id="SetTemplete" class="btn btn-warning">
+        <i class="fa-solid fa-file-edit"></i>
+        Set Templete
+    </a>
+    <a id="SetTemplete" class="btn btn-secondary">
+        <i class="fa-solid fa-download"></i>
+        Download
+    </a>
+    <a id="SetTemplete" class="btn btn-success">
+        <i class="fa-solid fa-pencil"></i>
+        Update Excel Rule
+    </a>
+    <a id="SetTemplete" class="btn btn-danger">
+        <i class="fa-solid fa-upload"></i>
+        Upload Bulk Data
+    </a>
+</div>
+
+<div id="contentDiv">
+
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    $('document').ready(function(){
+        LoadDepartmentFormAndList();
+    });
+    function LoadDepartmentFormAndList(){
+        $.ajax({
+            type:'GET',
+            url:'@Url.Action("GetDepartmentFormList","Department")',
+            success:function(response){
+                $('#contentDiv').html(response);
+            },
+            error: function(err){
+                alert(err);
+            }
+        });
+    }
+</script>

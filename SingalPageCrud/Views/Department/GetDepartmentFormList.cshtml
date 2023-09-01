@@ -1,0 +1,131 @@
+﻿@model SingalPageCrud.Models.Department;
+<div class="container">
+    <form id="departmentForm">
+        <fieldset>
+            <h3 class="text-primary">Department Form</h3>
+            <input type="hidden" asp-for="Did" />
+            <div class="form-group col-md-6 mb-3">
+                <label class="form-label">Name</label>
+                <input type="text" class="form-control" placeholder="Please Enter Department" asp-for="Name" />
+            </div>
+            <button type="button" class="btn btn-success" id="btnSave">Save</button>
+        </fieldset>
+    </form>
+    <br />
+
+    <table class="table table-striped table-hover text-center">
+        <thead>
+            <tr>
+                <td>ID</td>
+                <td>Department</td>
+                <td>Action</td>
+            </tr>
+        </thead>
+        <tbody id="departmentDivList">
+        </tbody>
+    </table>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/notyf/notyf.min.js"></script>
+
+<script>
+    $('document').ready(function () {
+        LoadDepartmentList();
+
+        var CurrentRow;
+    });
+
+
+
+    function LoadDepartmentList() {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetDepartmentList","Department")',
+            success: function (response) {
+                if (response != undefined || response != null) {
+                    var _data = response.data;
+                    var html = '';
+                    for (i = 0; i < _data.length; i++) {
+                        html += `<tr>
+                                    <td>${_data[i].did}</td>
+                                    <td>${_data[i].name}</td>
+                                    <td>
+                                    <button type="button" class="btn btn-info" onclick='Edit(${_data[i].did},this)'><i class="fa-solid fa-edit"></i></button>
+                                    <button class="btn btn-danger" onclick='Delete(${_data[i].did})'><i class="fa-solid fa-trash-can"></i></button>
+                                </td>
+                                </tr>`;
+                    }
+                    $('#departmentDivList').append(html);
+                }
+            },
+            error: function (err) {
+                alert(err);
+            }
+        });
+    }
+
+    $('#btnSave').click(function () {
+        let id = $('#Did').val();
+        let dname = $('#Name').val();
+        $.ajax({
+            type: 'Post',
+            url: '@Url.Action("InsertDepartment","Department")',
+            data: $('#departmentForm').serialize(),
+            success: function (response) {
+      
+                if (response != undefined || response != null) {
+                   
+                    if (response.isSuccess) {
+                        var _data = response.data;
+                        debugger
+                        if(id > 0){
+                            CurrentRow.find('td:eq(0)').text(id);
+                            CurrentRow.find('td:eq(1)').text(dname);
+                            notyf.success({ type: 'success', message: 'Data has been Updated' });
+                        }else{
+                            var html = `<tr><td>${_data.did}</td>
+                                            <td>${_data.name}</td>
+                                            <td>
+                                                <button type='button' class='btn btn-info onClick='Edit(${_data.did},'this')'><i class="fa-solid fa-edit"></i></button>
+                                                <button type='button' class='btn btn-danger' onClick='Delete(${_data.did})'><i class="fa-solid fa-trash-can"></i></button>
+                                                </td>
+                                        </tr>`;
+
+                            $('#departmentDivList').append(html);
+
+                            notyf.success({ type: 'success', message: 'Data has been Added' });
+                        }
+                        $('#Did').val(0);
+                        $('#Name').val('');
+                        
+                    }
+                    else {
+                        notyf.error({ type: 'error', message: 'Something went wrong' });
+                    }
+                }
+
+            },
+            error: function (err) {
+                alert(err);
+                notyf.error({ type: 'error', message: err.statusText });
+            }
+        });
+
+    });
+
+    function Edit(id,elem){
+       CurrentRow = $(elem).closest('tr');
+       $.ajax({
+            type: 'Get',
+            url: '@Url.Action("GetDepartmentById","Department")',
+            data: {'id': id},
+            success: function (response) {
+                var _data = response.data;
+                $('#Did').val(_data.did);
+                $('#Name').val(_data.name);
+                
+            }
+       });
+    }
+</script>
